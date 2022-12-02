@@ -1,5 +1,4 @@
 <?php
-
 // challenge see : https://adventofcode.com/2022/day/1
 
 $input = explode("\r\n", file_get_contents(__DIR__ . '/day_01_input.txt') );
@@ -18,7 +17,6 @@ foreach ($input as $line) {
 }
 echo 'Answer 1 : ' . $max . '<br />';
 
-
 // 2nd
 $sums = [0];
 foreach ($input as $line) {
@@ -29,5 +27,4 @@ foreach ($input as $line) {
 	}
 }
 sort($sums);
-
 echo 'Answer 2 : ' . ($sums[sizeof($sums) -3] + $sums[sizeof($sums) -2] + max($sums) );
