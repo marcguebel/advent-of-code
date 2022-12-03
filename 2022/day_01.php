@@ -27,4 +27,4 @@ foreach ($input as $line) {
 	}
 }
 sort($sums);
-echo 'Answer 2 : ' . ($sums[sizeof($sums) -3] + $sums[sizeof($sums) -2] + max($sums) );
+echo 'Answer 2 : ' . ($sums[ sizeof($sums) -3 ] + $sums[ sizeof($sums) -2 ] + max($sums) );

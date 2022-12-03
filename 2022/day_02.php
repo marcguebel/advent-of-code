@@ -17,7 +17,7 @@ $scores = [
 	"C Z" => 3 + 3
 ];
 foreach ($input as $play) {
-	$score += $scores[$play];
+	$score += $scores[ $play ];
 }
 echo 'Answer 1 : ' . $score . '<br />';
 
@@ -35,6 +35,6 @@ $scores = [
 	"C Z" => 1 + 6
 ];
 foreach ($input as $play) {
-	$score += $scores[$play];
+	$score += $scores[ $play ];
 }
 echo 'Answer 2 : ' . $score;
