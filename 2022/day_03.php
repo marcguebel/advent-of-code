@@ -8,8 +8,8 @@ $score = 0;
 foreach ($input as $bag) {
 
 	//cut the two half 
-	$firstHalf = str_split(substr($bag, 0, strlen($bag)/2) );
-	$secondHalf = str_split(substr($bag, strlen($bag)/2) );
+	$firstHalf = str_split(substr($bag, 0, strlen($bag) / 2) );
+	$secondHalf = str_split(substr($bag, strlen($bag) / 2) );
 
 	//get the doubons
 	$doublons = array_unique(array_intersect($firstHalf, $secondHalf) );
