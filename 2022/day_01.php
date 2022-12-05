@@ -10,8 +10,9 @@ foreach ($input as $line) {
 	if ($line != '') {
 		$current_sum += (int) $line;
 	} else {
-		if ($current_sum > $max)
+		if ($current_sum > $max) {
 			$max = $current_sum;
+		}
 		$current_sum = 0;
 	}
 }
