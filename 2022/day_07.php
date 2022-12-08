@@ -1,7 +1,7 @@
 <?php
 // challenge see : https://adventofcode.com/2022/day/7
 
-$input = explode("\r\n", file_get_contents(__DIR__ . '/day_07_input.txt'));
+$input = explode("\r\n", file_get_contents(__DIR__ . '/day_07_input.txt') );
 
 // 1st
 //contain all the possible directory path
