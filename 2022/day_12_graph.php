@@ -1,103 +1,162 @@
 <?php
-
 class Graph
 {
-	public array $map = [];
-	public array $nodeToDo = [];
-	public array $nodeEnd = [];
-	public $nodeObjectif;
-	public $currentNode;
-	public int $startX;
-	public int $startY;
-	public bool $isEnd = false;
-	public $count = 0;
+	public array $map;
+	public array $nodes;
+	public node  $currentNode;
+	public int   $startX;
+	public int   $startY;
+	public bool  $displayMap = false;
 
-	public function run()
+	/**
+	 * Implement basic BFS algorithme
+	 * @return 	int | false  count for short path to end or fase if no way found
+	 */
+	public function run(): int | bool
 	{
-		//initilise nodes
+		//initialise all nodes
 		foreach ($this->map as $x => $line) {
 			foreach ($line as $y => $node) {
-				$xObjectif = $this->nodeObjectif->x;
-				$yObjectif = $this->nodeObjectif->y;
-				$node = new Node($node, $x, $y, $xObjectif, $yObjectif);
-				$this->nodeToDo[$x][$y] = $node;
+				$node = new Node($node, $x, $y);
+				$this->nodes[$x][$y] = $node;
 			}
 		}
 
-		//load all voisins
-		$this->currentNode = $this->nodeToDo[$this->startX][$this->startY];
+		//set current node
+		$this->currentNode = $this->nodes[$this->startX][$this->startY];
 		$this->currentNode->letter = 'a';
-		$this->nodeEnd[$this->currentNode->x][$this->currentNode->y] = $this->currentNode;
-		foreach ($this->nodeToDo as $line) {
-			foreach ($line as $node) {
-				$node->voisins = $this->getVoisins($node);
+
+		//load all neighbors
+		foreach ($this->nodes as $x => $line) {
+			foreach ($line as $y => $node) {
+				$node->neighbors = $this->getNeighbors($node);
 			}
 		}
 
 		//start checking
-		$this->move();
+		$path = $this->start();
+
+		//can display path on map
+		if($this->displayMap && $path){
+			$this->renderMap($path);
+		}
+		
+		if($path)
+			return count($path)-3;
+		else
+			return false;
 	}
 
-	public function move(){
-		$voisins = $this->currentNode->voisins;
-		$key = 999;
-		if (count($voisins)>0) {
-			foreach ($voisins as $index => $voisin) {
-				if (!$voisin->visited) {
-					$key = $index;
-				}
-			}
-		}
-		if(isset($this->currentNode->voisins[$key])) {
-			$next = $this->currentNode->voisins[$key];
-			$next->visited=true;
-			$this->count++;
-			echo 'start '.$next->letter.' move to '.$next->x.' '.$next->y.'<br />';
-
-			//set parent and update current node
-			$next->parent = $this->currentNode;
-			$this->currentNode = $next;
-
-			if(ord($next->letter) != ord('Z')){
-				$this->move();
-			}
-		} else {
-			echo 'end !';
-			//remonter en arriere pour trouver un voisin
-		}
-	}
-
-	public function setObjectif($letter, $x, $y)
+	/**
+	 * Basic BFS algorithme
+	 * @return 	int | false  count for short path to end or fase if no way found
+	 */
+	public function start(): array | bool
 	{
-		$node = new Node($letter, $x, $y);
-		$node->flyDistanceToEnd = 0;
-		$this->nodeObjectif = $node;
+		$q = new SplQueue();
+
+		//enqueue current node mark it as visited
+    	$q->enqueue([$this->currentNode]);
+    	$this->currentNode->visited = true;
+
+    	while ($q->count() > 0) {
+    		$path = $q->dequeue();
+    		$node = $path[sizeof($path) - 1];
+
+    		//end
+    		if ($node->letter == "E") {
+    			return $path;
+    		}
+
+    		//every neighbors
+    		foreach ($node->neighbors as $neighbors) {
+    			if (!$neighbors->visited) {
+	                $neighbors->visited = true;
+
+                	# Build new path appending the neighbour then and enqueue it
+	                $new_path = $path;
+	                $new_path[] = $neighbors;
+
+                	$q->enqueue($new_path);
+                }
+            }
+    	}
+
+    	//no path found
+    	return false;
 	}
 
-	public function getVoisins($node)
+	/**
+	 * return nodes neighbors for node $node
+	 *
+	 * @param 	node 	$node 	node to test
+	 * @return  array 			nodes neighbors
+	 */
+	public function getNeighbors(node $node): array
 	{
-		$nodesVoisins = [];
-		$x = $node->x;
-		$y = $node->y;
-		$nextLetter = [ord($node->letter), ord($node->letter) + 1];
-		if (isset($this->nodeToDo[$x - 1][$y]) && in_array(ord($this->nodeToDo[$x - 1][$y]->letter), $nextLetter) ) {
-			$nodesVoisins[] = $this->nodeToDo[$x - 1][$y];
+		$nodesNeighbors = [];
+		if ($this->canMoveTo($node->x-1, $node->y, $node) ) {
+			$nodesNeighbors[] = $this->nodes[$node->x-1][$node->y];
 		}
-		if (isset($this->nodeToDo[$x + 1][$y]) && in_array(ord($this->nodeToDo[$x + 1][$y]->letter), $nextLetter) ) {
-			$nodesVoisins[] = $this->nodeToDo[$x + 1][$y];
+		if ($this->canMoveTo($node->x+1, $node->y, $node) ) {
+			$nodesNeighbors[] = $this->nodes[$node->x + 1][$node->y];
 		}
-		if (isset($this->nodeToDo[$x][$y - 1]) && in_array(ord($this->nodeToDo[$x][$y - 1]->letter), $nextLetter) ) {
-			$nodesVoisins[] = $this->nodeToDo[$x][$y - 1];
+		if ($this->canMoveTo($node->x, $node->y-1, $node) ) {
+			$nodesNeighbors[] = $this->nodes[$node->x][$node->y - 1];
 		}
-		if (isset($this->nodeToDo[$x][$y + 1]) && in_array(ord($this->nodeToDo[$x][$y + 1]->letter), $nextLetter) ) {
-			$nodesVoisins[] = $this->nodeToDo[$x][$y + 1];
+		if ($this->canMoveTo($node->x, $node->y+1, $node) ) {
+			$nodesNeighbors[] = $this->nodes[$node->x][$node->y + 1];
 		}
 
+		return $nodesNeighbors;
+	}
 
-		usort($nodesVoisins, function ($a, $b) {
-    		return $a->flyDistanceToEnd - $b->flyDistanceToEnd;
-		});
+	/**
+	 * check if the node $node can move to $nodes[$x][$y]
+	 *
+	 * @param 	int 	$x 		position x to test
+	 * @param 	int 	$y 		position y to test
+	 * @param 	node 	$node 	object node
+	 */
+	public function canMoveTo(int $x, int $y, node $node): bool
+	{
+		//must exist
+		if(!isset($this->nodes[$x][$y]))
+			return false;
 
-		return $nodesVoisins;
+		//can if its z to E
+		if(ord($this->nodes[$x][$y]->letter) == 69 && ord($node->letter) == 122)
+			return true;
+
+		//can basic condition
+		if(ord($node->letter)+1 > ord($this->nodes[$x][$y]->letter)-1 && ord($this->nodes[$x][$y]->letter) != 69)
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * Display map with path in gray background
+	 *
+	 * @param 	array 	$path path from start to end
+	 */
+	public function renderMap(array $path): void
+	{
+		//format 
+		$outpout=[];
+		foreach($path as $node){
+			$outpout[$node->x][$node->y]=$node->letter;
+		}
+
+		//render
+		echo "<pre>";
+		foreach($this->map as $x => $line){
+			foreach ($line as $y => $letter) {
+				$style = (isset($outpout[$x][$y]) ? 'background: gray;' : null);
+				echo '<span style="'.$style.'">'.$letter.'</span>';
+			}
+			echo '<br />';
+		}
+		echo "</pre>";
 	}
 }
