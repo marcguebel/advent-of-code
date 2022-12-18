@@ -14,58 +14,71 @@ for ($i=0; $i < count($input); $i++) {
 	$right = json_decode($input[$i]);
 	$i++;
 
-
 	$isEnd = false;
-	$ind = 0;
+	$indLeft = 0;
+	$indRight = 0;
 
-	$copyLeft = $left;
-	$copyRight = $right;
-	$tempLeft = $left;
-	$tempRight = $right;
 	while (!$isEnd) {
-		if (!isset($copyLeft[$ind]) && isset($copyRight[$ind])) {
+		if (!isset($left[$indLeft]) && isset($right[$indRight])) {
 			$countRightOrder += $index;
 			$isEnd = true;
-		} elseif (isset($copyLeft[$ind]) && !isset($copyRight[$ind])) {
+		} elseif (isset($left[$indLeft]) && !isset($right[$indRight])) {
 			$isEnd = true;
-		} elseif (!is_array($copyLeft[$ind]) && !is_array($copyRight[$ind]) ) {
-			echo 'compare '.$copyLeft[$ind].' vs '.$copyRight[$ind].'<br />';
-			if ($copyLeft[$ind] > $copyRight[$ind]) {
+		} elseif (!is_array($left[$indLeft]) && !is_array($right[$indRight]) ) {
+			if ($left[$indLeft] > $right[$indRight]) {
 				$isEnd = true;
-			} elseif ($copyLeft[$ind] < $copyRight[$ind]) {
+			} elseif ($left[$indLeft] < $right[$indRight]) {
 				$countRightOrder += $index;
 				$isEnd = true;
 			} else {
-				$ind++;
-				$copyLeft = $tempLeft;
-				$copyRight = $tempRight;
+				$indRight++;
+				$indLeft++;
 			}
-		} elseif(is_array($copyLeft[$ind]) && is_array($copyRight[$ind]) ) {
-			echo 'compare ['.implode(',', $copyLeft[$ind]).'] vs ['.implode(',', $copyRight[$ind]).']<br />';
-			if($index==8){
-				print_r($copyLeft[$ind]);
+		} elseif(is_array($left[$indLeft]) && is_array($right[$indRight]) ) {
+			if(count($left[$indLeft])==0 && count($right[$indRight])==0){
+				$indLeft++;
+				$indRight++;
+			} else{
+				$left = $left[$indLeft];
+				$right = $right[$indRight];
+				$indLeft = 0;
+				$indRight = 0;
 			}
-			$tempLeft = $copyLeft;
-			$tempRight = $copyRight;
-			$copyLeft = $copyLeft[$ind];
-			$copyRight = $copyRight[$ind];
-			$ind = 0;
-		} elseif(is_array($copyLeft[$ind]) && !is_array($copyRight[$ind]) ) {
-			$tempLeft = $copyLeft[$ind];
-			$tempRight = $copyRight[$ind];
-			$copyRight = [$copyRight[$ind]];
-			$copyLeft = $copyLeft[$ind];
-			$ind = 0;
-		} elseif(!is_array($copyLeft[$ind]) && is_array($copyRight[$ind]) ) {
-			$tempLeft = $copyLeft[$ind];
-			$tempRight = $copyRight[$ind];
-			$copyLeft = [$copyLeft[$ind]];
-			$copyRight = $copyRight[$ind];
-			$ind = 0;
+		} elseif(is_array($left[$indLeft]) && !is_array($right[$indRight]) ) {
+			$right[$indRight] = [$right[$indRight]];
+		} elseif(!is_array($left[$indLeft]) && is_array($right[$indRight]) ) {
+			$left[$indLeft] = [$left[$indLeft]];
 		} 
 	}
 }
-// echo 'Answer 1 : ' . $path . '<br />';
+echo 'Answer 1 : ' . $countRightOrder . '<br />';
+
+function display(array $array) 
+{
+	$string = '[';
+	if (count($array)>0) {
+		foreach ($array as $ind => $element) {
+			if(is_array($element)) {
+				$string .= display($element);
+			} else {
+				$string .= $element;
+			}
+			if ($ind!=count($array)-1) {
+				$string .= ',';
+			}
+		}
+	}
+	return $string . ']';
+}
 
 // 2nd
-// echo 'Answer 2 : ' . $shortPath . '<br />';
+$final = ['[[2]]', '[[6]]'];
+for ($i=0; $i < count($input); $i++) { 
+	if ($input[$i] != '') {
+		$final[] = display(json_decode($input[$i]));
+	}
+}
+
+sort($final, SORT_NATURAL);
+print_r($final);
+// echo 'Answer 2 : ' .  . '<br />';
