@@ -79,6 +79,7 @@ for ($i=0; $i < count($input); $i++) {
 	}
 }
 
-sort($final, SORT_NATURAL);
+rsort($final, SORT_STRING         );
 print_r($final);
 // echo 'Answer 2 : ' .  . '<br />';
+// 117 196
