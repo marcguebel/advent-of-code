@@ -1,7 +1,7 @@
 <?php
 // challenge see : https://adventofcode.com/2023/day/1
 
-$input = explode("\r\n", file_get_contents(__DIR__ . '/day_01_input.txt') );
+$input = explode("\n", file_get_contents(__DIR__ . '/day_01_input.txt'));
 
 // 1st
 $sum = 0;
@@ -21,7 +21,7 @@ foreach ($input as $line) {
     $last = '';
     $pos = 0;
     foreach ($numberAsString as $number) {
-        while (($pos = strpos($line, $number, $pos)) !== false){
+        while (($pos = strpos($line, $number, $pos)) !== false) {
             $pos = $pos + strlen($number);
             if ($pos !== false && ($posFirst === false || $pos < $posFirst)) {
                 $posFirst = $pos;
